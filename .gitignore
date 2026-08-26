@@ -1,0 +1,35 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.db
+*.sqlite3
+
+# Rust
+/anomaly_detector/target/
+*.so
+*.pyd
+
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+*.csv
+*.pkl
+*.faiss
+
+# Logs
+*.log
+
