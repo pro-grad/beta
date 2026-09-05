@@ -1,5 +1,17 @@
 use reqwest;
 use serde_json::json;
+use crate::agents::prompts::SCOPE_CHECK_PROMPT;
+use crate::models::schemas::ScopeCheckResult;
+
+
+pub async fn check_scope(user_message: &str) -> ScopeCheckResult {
+    let raw_output = query_ollama(SCOPE_CHECK_PROMPT, "", user_message).await;
+    serde_json::from_str(&raw_output).unwrap_or(ScopeCheckResult {
+        in_scope: true,
+        needs_rag: false,
+        search_query: None,
+    })
+}
 
 pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) -> String {
     let full_prompt = format!(
@@ -11,7 +23,7 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
     let response = client
         .post("http://localhost:11434/api/generate")
         .json(&json!({
-            "model": "qwen2.5:7b",
+            "model": "prograd-local:latest",
             "prompt": full_prompt,
             "stream": false,
             "options": {

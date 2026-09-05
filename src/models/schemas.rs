@@ -19,3 +19,10 @@ pub struct UploadResponse {
     pub chunk_count: usize,
     pub preview: Option<String>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct ScopeCheckResult {
+    pub in_scope: bool,
+    pub needs_rag: bool,
+    pub search_query: Option<String>,
+}
