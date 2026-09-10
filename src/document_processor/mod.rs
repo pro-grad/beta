@@ -24,6 +24,7 @@ fn extract_docx(_data: &[u8]) -> String {
     // Placeholder — DOCX extraction will be implemented here
     "DOCX extraction placeholder".to_string()
 }
+//before we chunk the doc, we need to translate the doc before we chunk it
 
 fn chunk_text(text: &str, chunk_size: usize, overlap: usize) -> Vec<String> {
     let graphemes: Vec<&str> = text.graphemes(true).collect();
