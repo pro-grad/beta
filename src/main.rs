@@ -22,7 +22,12 @@ async fn main() {
         .nest("/api/v1", routes::router())
         .layer(CorsLayer::permissive());
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or("8000".to_string())
+        .parse()
+        .unwrap_or(8000);
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("PostGrad API running on http://localhost:8000");
 
     axum::serve(
@@ -38,15 +43,10 @@ async fn health_check() -> &'static str {
 }
 
 async fn database_check() -> Result<(), sqlx::Error> {
-    let options = sqlx::postgres::PgConnectOptions::new()
-        .host("localhost")
-        .port(5432)
-        .username("postgres")
-        .password("newpassword123")
-        .database("prograd");
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let pool = sqlx::postgres::PgPoolOptions::new()
-        .connect_with(options)
+        .connect(&database_url)
         .await?;
 
     sqlx::query("CREATE TABLE IF NOT EXISTS student_profile (id SERIAL PRIMARY KEY, name TEXT NOT NULL, surname TEXT, year_completed_or_will_complete INTEGER, programming_languages TEXT)")

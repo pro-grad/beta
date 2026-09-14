@@ -14,15 +14,10 @@ pub async fn check_scope(user_message: &str) -> ScopeCheckResult {
 }
 
 pub async fn save_curriculum(curriculum: &Lessons30Days) -> Result<(), sqlx::Error> {
-    let options = sqlx::postgres::PgConnectOptions::new()
-        .host("localhost")
-        .port(5432)
-        .username("postgres")
-        .password("newpassword123")
-        .database("prograd");
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let pool = sqlx::postgres::PgPoolOptions::new()
-        .connect_with(options)
+        .connect(&database_url)
         .await?;
 
     for day in &curriculum.days {
@@ -83,15 +78,10 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
 }
 
 pub async fn log_struggle(day_number: i32) -> Result<(), sqlx::Error> {
-    let options = sqlx::postgres::PgConnectOptions::new()
-        .host("localhost")
-        .port(5432)
-        .username("postgres")
-        .password("newpassword123")
-        .database("prograd");
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     let pool = sqlx::postgres::PgPoolOptions::new()
-        .connect_with(options)
+        .connect(&database_url)
         .await?;
 
     let existing = sqlx::query_scalar::<_, i32>(
