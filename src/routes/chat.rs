@@ -3,6 +3,28 @@ use crate::models::schemas::{ChatRequest, ChatResponse};
 use crate::ollama::client::{check_scope, log_struggle, query_ollama};
 use axum::{routing::post, Json, Router};
 
+fn simple_rag_lookup(context: &str, query: &str) -> String {
+    let query_words: Vec<String> = query
+        .to_lowercase()
+        .split_whitespace()
+        .map(|w| w.to_string())
+        .collect();
+
+    let matches: Vec<&str> = context
+        .split("\n\n")
+        .filter(|chunk| {
+            let chunk_lower = chunk.to_lowercase();
+            query_words.iter().any(|w| chunk_lower.contains(w.as_str()))
+        })
+        .collect();
+
+    if matches.is_empty() {
+        context.to_string()
+    } else {
+        matches.join("\n\n")
+    }
+}
+
 pub fn router() -> Router {
     Router::new().route("/chat", post(chat_handler))
 }
@@ -30,12 +52,16 @@ async fn chat_handler(Json(payload): Json<ChatRequest>) -> Json<ChatResponse> {
         _ => DOCUMENT_PROMPT,
     };
 
-    let mut context = payload.context.join("\n\n");
-    if scope_check.needs_rag {
+    let context = payload.context.join("\n\n");
+    let context = if scope_check.needs_rag {
         if let Some(query) = &scope_check.search_query {
-            context = format!("{}\n\n[RAG lookup needed for: {}]", context, query);
+            simple_rag_lookup(&context, query)
+        } else {
+            context
         }
-    }
+    } else {
+        context
+    };
 
     let response = query_ollama(system_prompt, &context, &payload.prompt).await;
     Json(ChatResponse { response })
