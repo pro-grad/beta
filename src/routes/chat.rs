@@ -26,7 +26,7 @@ fn simple_rag_lookup(context: &str, query: &str) -> String {
 }
 
 pub fn router() -> Router {
-    Router::new().route("/chat", post(chat_handler))
+    Router::new().route("/", post(chat_handler))
 }
 
 async fn chat_handler(Json(payload): Json<ChatRequest>) -> Json<ChatResponse> {

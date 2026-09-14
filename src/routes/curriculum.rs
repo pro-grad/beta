@@ -3,7 +3,7 @@ use crate::ollama::client::{lesson_planner, save_curriculum};
 use axum::{routing::post, Json, Router};
 
 pub fn router() -> Router {
-    Router::new().route("/curriculum", post(curriculum_handler))
+    Router::new().route("/", post(curriculum_handler))
 }
 
 async fn curriculum_handler(Json(payload): Json<CurriculumRequest>) -> Json<CurriculumResponse> {
