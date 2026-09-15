@@ -65,14 +65,21 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
 
     match response {
         Ok(res) => {
-            if let Ok(json) = res.json::<serde_json::Value>().await {
-                json.get(0)
-                    .and_then(|v| v.get("generated_text"))
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("No response generated.")
-                    .to_string()
+            let status = res.status();
+            let text = res.text().await.unwrap_or_default();
+
+            if status.is_success() {
+                serde_json::from_str::<serde_json::Value>(&text)
+                    .ok()
+                    .and_then(|json| {
+                        json.get(0)
+                            .and_then(|v| v.get("generated_text"))
+                            .and_then(|v| v.as_str())
+                            .map(|s| s.to_string())
+                    })
+                    .unwrap_or_else(|| format!("Could not parse response: {}", text))
             } else {
-                "Failed to parse Hugging Face response.".to_string()
+                format!("HF error {}: {}", status, text)
             }
         }
         Err(e) => format!("Error connecting to Hugging Face: {}", e),
