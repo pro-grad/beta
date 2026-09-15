@@ -22,7 +22,7 @@ pub async fn save_curriculum(curriculum: &Lessons30Days) -> Result<(), sqlx::Err
 
     for day in &curriculum.days {
         sqlx::query(
-            "INSERT INTO Curriculum (day_number, topic, difficulty, completed) VALUES (?, ?, ?, ?)",
+            "INSERT INTO Curriculum (day_number, topic, difficulty, completed) VALUES ($1, $2, $3, $4)",
         )
         .bind(day.day_number)
         .bind(&day.topic)
@@ -41,6 +41,8 @@ pub async fn lesson_planner(user_message: &str) -> Lessons30Days {
 }
 
 pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) -> String {
+    let hf_token = std::env::var("HF_TOKEN").unwrap_or_default();
+
     let full_prompt = format!(
         "{}\n\nContext:\n{}\n\nUser question: {}\n\nResponse:",
         system_prompt, context, question
@@ -48,14 +50,13 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
 
     let client = reqwest::Client::new();
     let response = client
-        .post("http://localhost:11434/api/generate")
+        .post("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2")
+        .header("Authorization", format!("Bearer {}", hf_token))
         .json(&json!({
-            "model": "prograd-local:latest",
-            "prompt": full_prompt,
-            "stream": false,
-            "options": {
+            "inputs": full_prompt,
+            "parameters": {
                 "temperature": 0.3,
-                "num_predict": 512
+                "max_new_tokens": 512
             }
         }))
         .timeout(std::time::Duration::from_secs(90))
@@ -65,15 +66,16 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
     match response {
         Ok(res) => {
             if let Ok(json) = res.json::<serde_json::Value>().await {
-                json.get("response")
+                json.get(0)
+                    .and_then(|v| v.get("generated_text"))
                     .and_then(|v| v.as_str())
                     .unwrap_or("No response generated.")
                     .to_string()
             } else {
-                "Failed to parse Ollama response.".to_string()
+                "Failed to parse Hugging Face response.".to_string()
             }
         }
-        Err(e) => format!("Error connecting to Ollama: {}", e),
+        Err(e) => format!("Error connecting to Hugging Face: {}", e),
     }
 }
 
