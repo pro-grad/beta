@@ -41,25 +41,25 @@ pub async fn lesson_planner(user_message: &str) -> Lessons30Days {
 }
 
 pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) -> String {
-    let hf_token = std::env::var("HF_TOKEN").unwrap_or_default();
+    let api_key = std::env::var("GEMINI_API_KEY").unwrap_or_default();
 
     let full_prompt = format!(
-        "{}\n\nContext:\n{}\n\nUser question: {}\n\nResponse:",
+        "{}\n\nContext:\n{}\n\nUser question: {}",
         system_prompt, context, question
     );
 
     let client = reqwest::Client::new();
+    let url = format!(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={}",
+        api_key
+    );
+
     let response = client
-        .post("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2")
-        .header("Authorization", format!("Bearer {}", hf_token))
+        .post(&url)
         .json(&json!({
-            "inputs": full_prompt,
-            "parameters": {
-                "temperature": 0.3,
-                "max_new_tokens": 512
-            }
+            "contents": [{ "parts": [{ "text": full_prompt }] }]
         }))
-        .timeout(std::time::Duration::from_secs(90))
+        .timeout(std::time::Duration::from_secs(30))
         .send()
         .await;
 
@@ -67,22 +67,20 @@ pub async fn query_ollama(system_prompt: &str, context: &str, question: &str) ->
         Ok(res) => {
             let status = res.status();
             let text = res.text().await.unwrap_or_default();
-
             if status.is_success() {
                 serde_json::from_str::<serde_json::Value>(&text)
                     .ok()
                     .and_then(|json| {
-                        json.get(0)
-                            .and_then(|v| v.get("generated_text"))
-                            .and_then(|v| v.as_str())
+                        json["candidates"][0]["content"]["parts"][0]["text"]
+                            .as_str()
                             .map(|s| s.to_string())
                     })
                     .unwrap_or_else(|| format!("Could not parse response: {}", text))
             } else {
-                format!("HF error {}: {}", status, text)
+                format!("Gemini error {}: {}", status, text)
             }
         }
-        Err(e) => format!("Error connecting to Hugging Face: {}", e),
+        Err(e) => format!("Error connecting to Gemini: {}", e),
     }
 }
 
