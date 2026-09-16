@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "prograd-app",
+    "slug": "snack-313e7ec7-540b-47bc-a0f3-60e49f4b329f",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.goinggang.snack313e7ec7540b47bca0f360e49f4b329f"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.goinggang.snack313e7ec7540b47bca0f360e49f4b329f"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "description": "preview",
+    "plugins": [
+      "expo-status-bar",
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ]
+    ]
+  }
+}
