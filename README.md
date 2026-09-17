@@ -114,7 +114,7 @@ Built by a five-person team for a national hackathon.
 
 **Phenyo Moloko** - Co Technical lead (database, front-end to back-end pipeline, system prompt refinement, error handling, deployment)
 
-**Dimpho Magoro - lead AI engineer (fine-tuning of offline model, front-end optimization, frontier designer for continuous computing architecture)
+**Dimpho Magoro** - lead AI engineer (fine-tuning of offline model, front-end optimization, frontier designer for continuous computing architecture)
 
 **Result:** 2nd place, Campus hackathon.
 
