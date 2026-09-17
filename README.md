@@ -1,7 +1,3 @@
-Here's a short, punchy README for the repo root.
-
----
-
 ## `README.md` for `~/pro-grad/`
 
 ```markdown
