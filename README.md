@@ -1,6 +1,3 @@
-## `README.md` for `~/pro-grad/`
-
-```markdown
 # Pro-Grad
 
 **An offline, multi-agent AI career assistant.**
