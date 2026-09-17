@@ -106,13 +106,15 @@ Built for environments where internet is expensive, unreliable, or inappropriate
 
 ---
 
-## Team
+## Backend-Team
 
 Built by a five-person team for a national hackathon.
 
 **Tumelo Tshabalala** - Technical lead (Rust backend, document processor, agent routing)
+
 **Phenyo Moloko** - Co Technical lead (database, front-end to back-end pipeline, system prompt refinement, error handling, deployment)
-**Result:** 2nd place, national hackathon.
+
+**Result:** 2nd place, Campus hackathon.
 
 ---
 
